@@ -1,6 +1,5 @@
 open Bechamel
 open Toolkit
-module BF = Bloomf.Make (String)
 
 let () = Random.self_init ()
 
@@ -8,35 +7,35 @@ let random_char () = char_of_int (Random.int 256)
 
 let random_string n = String.init n (fun _i -> random_char ())
 
-let create size = Staged.stage (fun () -> BF.create size)
+let create size = Staged.stage (fun () -> Bloomf.create size)
 
 let add size =
-  let bf = BF.create size in
+  let bf = Bloomf.create size in
   let r = random_string 1024 in
-  Staged.stage (fun () -> BF.add bf r)
+  Staged.stage (fun () -> Bloomf.add bf r)
 
 let fill_bf bf n =
   let rec loop i =
     if i = 0 then ()
     else
       let r = random_string 1024 in
-      let () = BF.add bf r in
+      let () = Bloomf.add bf r in
       loop (i - 1)
   in
   loop n
 
 let find_absent size =
-  let bf = BF.create size in
+  let bf = Bloomf.create size in
   let () = fill_bf bf (size / 3) in
   let r = random_string 1024 in
-  Staged.stage (fun () -> ignore (BF.mem bf r))
+  Staged.stage (fun () -> ignore (Bloomf.mem bf r))
 
 let find_present size =
-  let bf = BF.create size in
+  let bf = Bloomf.create size in
   let () = fill_bf bf (size / 3) in
   let r = random_string 1024 in
-  let () = BF.add bf r in
-  Staged.stage (fun () -> ignore (BF.mem bf r))
+  let () = Bloomf.add bf r in
+  Staged.stage (fun () -> ignore (Bloomf.mem bf r))
 
 let test =
   Test.make_grouped ~name:"bloomf"
