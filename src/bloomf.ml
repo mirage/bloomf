@@ -1,7 +1,5 @@
 let log2 = log 2.
 
-let powlog2 = 2. ** log2
-
 type 'a t = { m : int; k : int; b : Bitv.t }
 
 let v m k = { m; k; b = Bitv.create m false }
@@ -12,7 +10,7 @@ let location m i data = abs (hash i data mod m)
 
 let estimate_parameters n p =
   let nf = float_of_int n in
-  let m = ceil (-.nf *. log p /. powlog2) in
+  let m = ceil (-.nf *. log p /. log (2. ** log2)) in
   let k = ceil (log2 *. m /. nf) in
   (m, k)
 
