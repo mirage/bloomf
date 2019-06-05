@@ -45,14 +45,15 @@ let test_errors () =
   in
   let count = loop attempts 0 in
   let error_rate = Float.of_int count /. Float.of_int attempts in
-  Alcotest.(check bool)
-    "error rate" true
-    (error_rate < 1.1 *. expected_error_rate)
+  if error_rate > 1.15 *. expected_error_rate then
+    Alcotest.failf "error_rate: expecting@\n%f, got@\n%f" expected_error_rate
+      error_rate
+  else ()
 
 let test_set =
   [ ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
-    ( "False positive rate is as specified (10% error allowed)",
+    ( "False positive rate is as specified (15% error allowed)",
       `Quick,
       test_errors )
   ]
