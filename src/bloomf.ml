@@ -1,15 +1,14 @@
 let log2 = log 2.
 
-type 'a t = { m : int; k : int; b : Bitv.t; h : ('a -> int) array }
+type 'a t = { m : int; k : int; b : Bitv.t; h0 : 'a -> int; h1 : 'a -> int }
 
 let v m k =
   { m;
     k;
     b = Bitv.create m false;
-    h = Array.init k (fun i -> Hashtbl.seeded_hash i)
+    h0 = Hashtbl.seeded_hash 0;
+    h1 = Hashtbl.seeded_hash 1
   }
-
-let location t i data = abs (t.h.(i) data mod t.m)
 
 let estimate_parameters n p =
   let nf = float_of_int n in
@@ -22,21 +21,25 @@ let create ?(error_rate = 0.01) n_items =
   v (int_of_float m) (int_of_float k)
 
 let add t data =
+  let h0 = t.h0 data in
+  let h1 = t.h1 data in
   let rec loop i =
     if i = 0 then ()
     else
-      let loc = location t i data in
+      let loc = ((h0 * i) + h1) mod t.m in
       let () = Bitv.set t.b loc true in
       loop (i - 1)
   in
   loop (t.k - 1)
 
 let mem t data =
+  let h0 = t.h0 data in
+  let h1 = t.h1 data in
   let rec loop res i =
     if i = 0 then res
     else if not res then res
     else
-      let loc = location t i data in
+      let loc = ((h0 * i) + h1) mod t.m in
       let res = Bitv.get t.b loc in
       loop res (i - 1)
   in
