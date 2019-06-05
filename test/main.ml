@@ -44,7 +44,7 @@ let test_errors () =
       else loop (i - 1) (if Bloomf.mem bf r then count + 1 else count)
   in
   let count = loop attempts 0 in
-  let error_rate = Float.of_int count /. Float.of_int attempts in
+  let error_rate = float_of_int count /. float_of_int attempts in
   if error_rate > 1.15 *. expected_error_rate then
     Alcotest.failf "error_rate: expecting@\n%f, got@\n%f" expected_error_rate
       error_rate
