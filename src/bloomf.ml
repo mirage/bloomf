@@ -1,65 +1,22 @@
 type 'a t = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
 
-let sieve n =
-  let is_prime = Array.make n true in
-  let limit = truncate (sqrt (float (n - 1))) in
-  let rec loop i =
-    if i = limit then ()
-    else
-      let () =
-        if is_prime.(i) then
-          let rec set_i_multiples j =
-            if j >= n then ()
-            else (
-              is_prime.(j) <- false;
-              set_i_multiples (j + i) )
-          in
-          set_i_multiples (i * i)
-        else ()
-      in
-      loop (i + 1)
-  in
-  is_prime.(0) <- false;
-  is_prime.(1) <- false;
-  loop 2;
-  is_prime
-
-let primes n =
-  let primes, _ =
-    let sieve = sieve n in
-    Array.fold_right
-      (fun is_prime (xs, i) ->
-        if is_prime then (i :: xs, i - 1) else (xs, i - 1) )
-      sieve
-      ([], Array.length sieve - 1)
-  in
-  Array.of_list primes
+let rec gcd a b =
+  if b = 0 then a
+  else gcd b (a mod b)
 
 let partition_lengths m k =
-  let p = primes ((m / k) + 300) in
-  let rec find_pdex dmin i =
-    let d = abs (p.(i) - (m / k)) in
-    if d > dmin then i - 1 else find_pdex d (i + 1)
-  in
-  let pdex = find_pdex max_int 0 in
-  let rec initial_sum sum i =
-    if i = pdex - k + 1 then sum else initial_sum (sum + p.(i)) (i - 1)
-  in
-  let sum = initial_sum 0 pdex in
-  let min = sum - m in
-  let rec best_window sum min j =
-    let new_sum = sum + p.(j) - p.(j - k) in
-    let diff = new_sum - m in
-    if diff >= min then j else best_window new_sum diff (j + 1)
-  in
-  let j = best_window 0 min (pdex + 1) in
-  let rec get_primes acc s i =
-    if i = 0 then (s, acc)
+  let rec aux sum acc i =
+    if List.length acc = k then sum, acc
     else
-      let chosen_prime = p.(j - k + i) in
-      get_primes (chosen_prime :: acc) (s + chosen_prime) (i - 1)
+      let rec loop step =
+        let k = i + step in
+        let gcd_k = gcd k in
+        if List.for_all (fun p -> gcd_k p = 1) acc then aux (sum + k) (k :: acc) (k+1)
+        else loop (step+1)
+      in
+      loop 1
   in
-  get_primes [] 0 k
+  aux 0 [] (m/k)
 
 let v m k =
   let m, lengths = partition_lengths m k in

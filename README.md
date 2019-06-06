@@ -4,20 +4,20 @@
 
 Micro benckmarks are provided for `create`, `add` and `mem` operations. Expected error rate is 0.1.
 
-|name                             |  major-allocated          |  minor-allocated          |  monotonic-clock   |
+|name                             |  major-allocated          |  minor-allocated          |  monotonic-clock          |
 |---------------------------------|---------------------------|---------------------------|---------------------------|
-|  bloomf/add 10000               |              0.0054 mw/run|              24.0088 w/run|            792.1010 ns/run|
-|  bloomf/add 100000              |              0.0054 mw/run|              24.0089 w/run|            802.7286 ns/run|
-|  bloomf/add 1000000             |              0.0054 mw/run|              24.0089 w/run|            799.0960 ns/run|
-|  bloomf/create 10000            |           1547.1388 mw/run|              26.0983 w/run|           8913.9970 ns/run|
-|  bloomf/create 100000           |          15461.8732 mw/run|              26.4489 w/run|          59116.7245 ns/run|
-|  bloomf/create 1000000          |         154604.2612 mw/run|              27.6991 w/run|         628970.3156 ns/run|
-|  bloomf/find (absent) 10000     |              0.0024 mw/run|              10.0073 w/run|            709.9202 ns/run|
-|  bloomf/find (absent) 100000    |              0.0024 mw/run|              10.0073 w/run|            700.4462 ns/run|
-|  bloomf/find (absent) 1000000   |              0.0024 mw/run|              10.0076 w/run|            731.5756 ns/run|
-|  bloomf/find (present) 10000    |              0.0056 mw/run|              25.0088 w/run|            792.7947 ns/run|
-|  bloomf/find (present) 100000   |              0.0056 mw/run|              25.0088 w/run|            786.0082 ns/run|
-|  bloomf/find (present) 1000000  |              0.0056 mw/run|              25.0090 w/run|            796.0115 ns/run|
+|  bloomf/add 10000               |              0.0045 mw/run|              26.0055 w/run|            469.9798 ns/run|
+|  bloomf/add 100000              |              0.0044 mw/run|              26.0054 w/run|            468.8711 ns/run|
+|  bloomf/add 1000000             |              0.0044 mw/run|              26.0054 w/run|            465.9688 ns/run|
+|  bloomf/create 10000            |           1548.2850 mw/run|             225.1115 w/run|          10004.2279 ns/run|
+|  bloomf/create 100000           |          15464.1941 mw/run|             261.4265 w/run|          52229.0413 ns/run|
+|  bloomf/create 1000000          |         154617.1529 mw/run|             217.6108 w/run|         584479.5283 ns/run|
+|  bloomf/find (absent) 10000     |              0.0017 mw/run|               8.0038 w/run|            354.4163 ns/run|
+|  bloomf/find (absent) 100000    |              0.0017 mw/run|               8.0038 w/run|            358.0275 ns/run|
+|  bloomf/find (absent) 1000000   |              0.0025 mw/run|              11.0044 w/run|            401.7930 ns/run|
+|  bloomf/find (present) 10000    |              0.0048 mw/run|              26.0060 w/run|            525.7296 ns/run|
+|  bloomf/find (present) 100000   |              0.0046 mw/run|              26.0057 w/run|            480.7180 ns/run|
+|  bloomf/find (present) 1000000  |              0.0044 mw/run|              26.0054 w/run|            465.8766 ns/run|
 
 They preform OLS regression analysis using the development version of
 [bechamel](https://github.com/dinosaure/bechamel).
