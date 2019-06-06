@@ -1,22 +1,21 @@
 type 'a t = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
 
-let rec gcd a b =
-  if b = 0 then a
-  else gcd b (a mod b)
+let rec gcd a b = if b = 0 then a else gcd b (a mod b)
 
 let partition_lengths m k =
   let rec aux sum acc i =
-    if List.length acc = k then sum, acc
+    if List.length acc = k then (sum, acc)
     else
       let rec loop step =
         let k = i + step in
         let gcd_k = gcd k in
-        if List.for_all (fun p -> gcd_k p = 1) acc then aux (sum + k) (k :: acc) (k+1)
-        else loop (step+1)
+        if List.for_all (fun p -> gcd_k p = 1) acc then
+          aux (sum + k) (k :: acc) (k + 1)
+        else loop (step + 1)
       in
       loop 1
   in
-  aux 0 [] (m/k)
+  aux 0 [] (m / k)
 
 let v m k =
   let m, lengths = partition_lengths m k in

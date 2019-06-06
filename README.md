@@ -1,8 +1,9 @@
-# Bloomf - Efficient Bloom filters for OCaml [![Build Status](https://travis-ci.org/pascutto/bloomf.svg)](https://travis-ci.org/pascutto/bloomf)
+# Bloomf - Efficient Bloom filters for OCaml [![Build Status](https://travis-ci.org/mirage/bloomf.svg)](https://travis-ci.org/mirage/bloomf)
 
-## Benckmarks
+## Benchmarks
 
-Micro benckmarks are provided for `create`, `add` and `mem` operations. Expected error rate is 0.1.
+Micro benchmarks are provided for `create`, `add` and `mem` operations.
+Expected error rate is 0.01.
 
 |name                             |  major-allocated          |  minor-allocated          |  monotonic-clock          |
 |---------------------------------|---------------------------|---------------------------|---------------------------|
