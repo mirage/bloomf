@@ -24,4 +24,8 @@ val mem : 'a t -> 'a -> bool
 (** [mem t e] is [true] if [e] is in [t]. *)
 
 val clear : 'a t -> unit
-(** [clear t] clears the contents of [t] *)
+(** [clear t] clears the contents of [t]. *)
+
+val size_estimate : 'a t -> int
+(** [size_estimate t] is an approximation of the number of elements stored in
+    the bloom filter. *)

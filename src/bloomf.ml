@@ -62,3 +62,9 @@ let mem t data =
   loop t.p_len
 
 let clear t = Bitv.fill t.b 0 t.m false
+
+let size_estimate t =
+  let mf = float_of_int t.m in
+  let kf = float_of_int t.k in
+  let xf = float_of_int (Bitv.pop t.b) in
+  int_of_float (-.mf /. kf *. log (1. -. (xf /. mf)))
