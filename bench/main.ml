@@ -26,16 +26,21 @@ let fill_bf bf n =
 
 let find_absent size =
   let bf = Bloomf.create size in
-  let () = fill_bf bf (size / 3) in
+  let () = fill_bf bf size in
   let r = random_string 1024 in
   Staged.stage (fun () -> ignore (Bloomf.mem bf r))
 
 let find_present size =
   let bf = Bloomf.create size in
-  let () = fill_bf bf (size / 3) in
+  let () = fill_bf bf size in
   let r = random_string 1024 in
   let () = Bloomf.add bf r in
   Staged.stage (fun () -> ignore (Bloomf.mem bf r))
+
+let size_estimate size =
+  let bf = Bloomf.create size in
+  let () = fill_bf bf size in
+  Staged.stage (fun () -> ignore (Bloomf.size_estimate bf))
 
 let test =
   Test.make_grouped ~name:"bloomf"
@@ -50,7 +55,10 @@ let test =
         find_absent;
       Test.make_indexed ~name:"find (present)" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
-        find_present
+        find_present;
+      Test.make_indexed ~name:"size_estimate" ~fmt:"%s %d"
+        ~args:[ 10_000; 100_000; 1_000_000 ]
+        size_estimate
     ]
 
 let benchmark () =
@@ -61,7 +69,7 @@ let benchmark () =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
   let raw_results =
-    Benchmark.all ~run:3000 ~quota:Benchmark.(s 1.) instances test
+    Benchmark.all ~run:1000 ~quota:Benchmark.(s 0.1) instances test
   in
   List.map (fun instance -> Analyze.all ols instance raw_results) instances
   |> Analyze.merge ols instances

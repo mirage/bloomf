@@ -4,5 +4,6 @@
 
 (alias
  (name bench)
+ (deps main.exe)
  (action
   (run %{exe:main.exe})))
