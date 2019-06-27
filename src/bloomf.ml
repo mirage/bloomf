@@ -45,7 +45,7 @@ let add t data =
     | [] -> ()
     | (off, len) :: tl ->
         let loc = off + (h mod len) in
-        let () = Bitv.set t.b loc true in
+        let () = Bitv.unsafe_set t.b loc true in
         loop tl
   in
   loop t.p_len
@@ -56,7 +56,7 @@ let mem t data =
     | [] -> true
     | (off, len) :: tl ->
         let loc = off + (h mod len) in
-        let res = Bitv.get t.b loc in
+        let res = Bitv.unsafe_get t.b loc in
         if res then loop tl else false
   in
   loop t.p_len
