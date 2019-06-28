@@ -63,6 +63,7 @@ let mem t data =
 
 let clear t = Bitv.fill t.b 0 t.m false
 
+(* Bitv.pop is really slow *)
 let size_estimate t =
   let mf = float_of_int t.m in
   let kf = float_of_int t.k in

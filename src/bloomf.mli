@@ -28,4 +28,5 @@ val clear : 'a t -> unit
 
 val size_estimate : 'a t -> int
 (** [size_estimate t] is an approximation of the number of elements stored in
-    the bloom filter. *)
+    the bloom filter.
+    Please note that this operation is costly (see benchmarks). *)
