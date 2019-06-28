@@ -15,7 +15,9 @@ type 'a t
 
 val create : ?error_rate:float -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
-    positive rate when filled with [size] elements is [error_rate]. *)
+    positive rate when filled with [size] elements is [error_rate].
+    [error_rate] should be in ]0, 1[, and [size] should be positive, otherwise
+    raises [Invalid_argument]. *)
 
 val add : 'a t -> 'a -> unit
 (** [add t e] adds [e] to [t]. *)

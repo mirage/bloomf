@@ -28,7 +28,10 @@ let v m k =
     in
     aux [] 0 lengths
   in
-  { m; k; p_len; b = Bitv.create m false }
+  try
+    let b = Bitv.create m false in
+    { m; k; p_len; b }
+  with Invalid_argument _ -> invalid_arg "Bloomf.create"
 
 let estimate_parameters n p =
   let log2 = log 2. in
@@ -39,6 +42,7 @@ let estimate_parameters n p =
 
 let create ?(error_rate = 0.01) n_items =
   let m, k = estimate_parameters n_items error_rate in
+  if error_rate <= 0. || error_rate >= 1. then invalid_arg "Bloomf.create";
   v (int_of_float m) (int_of_float k)
 
 let add_priv t hashed_data =
