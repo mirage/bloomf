@@ -24,13 +24,13 @@ let fill_bf bf n =
   in
   loop n
 
-let find_absent size =
+let mem_absent size =
   let bf = Bloomf.create size in
   let () = fill_bf bf size in
   let r = random_string 1024 in
   Staged.stage (fun () -> ignore (Bloomf.mem bf r))
 
-let find_present size =
+let mem_present size =
   let bf = Bloomf.create size in
   let () = fill_bf bf size in
   let r = random_string 1024 in
@@ -50,12 +50,12 @@ let test =
       Test.make_indexed ~name:"add" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
         add;
-      Test.make_indexed ~name:"find (absent)" ~fmt:"%s %d"
+      Test.make_indexed ~name:"mem (absent)" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
-        find_absent;
-      Test.make_indexed ~name:"find (present)" ~fmt:"%s %d"
+        mem_absent;
+      Test.make_indexed ~name:"mem (present)" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
-        find_present;
+        mem_present;
       Test.make_indexed ~name:"size_estimate" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
         size_estimate
