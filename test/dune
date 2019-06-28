@@ -1,3 +1,13 @@
-(test
+(executable
  (name main)
  (libraries bloomf alcotest))
+
+(alias
+ (name runtest)
+ (action
+  (run %{exe:main.exe} -q)))
+
+(alias
+ (name runtest-rand)
+ (action
+  (run %{exe:main.exe})))

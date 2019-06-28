@@ -5,6 +5,7 @@ license:      "MIT"
 homepage:     "https://github.com/mirage/bloomf"
 bug-reports:  "https://github.com/mirage/bloomf/issues"
 dev-repo:     "git+https://github.com/mirage/bloomf.git"
+doc:          "https://mirage.github.io/bloomf/"
 
 build: [
  ["dune" "subst"] {pinned}
@@ -19,3 +20,4 @@ depends: [
   "alcotest" {with-test}
 ]
 synopsis: "Efficient Bloom filters for OCaml"
+description: "Efficient Bloom filters for OCaml"

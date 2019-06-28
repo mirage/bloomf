@@ -10,14 +10,16 @@
     Internal parameters of the BF allow to control its false positive rate
     depending on the expected number of elements in it. *)
 
-(** The type of the Bloom filter *)
+(** {1 Generic interface} *)
+
+(** The type of the Bloom filter. *)
 type 'a t
 
 val create : ?error_rate:float -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
     positive rate when filled with [size] elements is [error_rate].
-    [error_rate] should be in ]0, 1[, and [size] should be positive, otherwise
-    raises [Invalid_argument]. *)
+    @raise Invalid_argument if [error_rate] is not in \]0, 1\[, or [size] is
+    negative. *)
 
 val add : 'a t -> 'a -> unit
 (** [add t e] adds [e] to [t]. *)
@@ -33,12 +35,22 @@ val size_estimate : 'a t -> int
     the bloom filter.
     Please note that this operation is costly (see benchmarks). *)
 
+(** {1 Functorial interface} *)
+
+(** The functorial interface allows you to specify your own hash function. *)
+
+(** The input interface for [Bloomf.Make]. *)
 module type Hashable = sig
+  (** The type of the values to be stored. *)
   type t
 
   val hash : t -> int
+  (** The hash function. {e This function must return positive integers.}
+      Behavior is undefined otherwise. Please note that false positive rate
+      might be affected by unevenly distributed hash functions. *)
 end
 
+(** The output interface for [Bloomf.Make]. *)
 module Make (H : Hashable) : sig
   type t
 

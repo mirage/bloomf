@@ -64,9 +64,9 @@ let test_set =
   [ ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
     ( "False positive rate is as specified (15% error allowed)",
-      `Quick,
+      `Slow,
       test_errors );
-    ("Size estimate is correct", `Quick, test_size)
+    ("Size estimate is correct", `Slow, test_size)
   ]
 
 (* Run it *)

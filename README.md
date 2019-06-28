@@ -10,11 +10,21 @@ not be present and the BF membership query can return true anyway.
 Internal parameters of the BF allow to control its false positive rate
 depending on the expected number of elements in it.
 
+Online documentation is available [here](https://mirage.github.io/bloomf/).
+
 ## Install
 
 `bloomf` is available on opam with `opam install bloomf`.
 
 Alternatively, you can build from sources with `make` or `dune build`.
+
+## Tests
+
+Some of the tests, measuring false positive rate or size estimation, might fail
+once in a while since they are randomized. They are thus removed from
+`dune runtest` alias.
+
+To run the whole test suite, run `dune build @runtest-rand` instead.
 
 ## Benchmarks
 
