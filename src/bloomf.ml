@@ -1,4 +1,6 @@
-type 'a t = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
+type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
+
+type 'a t = priv
 
 let rec gcd a b = if b = 0 then a else gcd b (a mod b)
 
@@ -39,27 +41,29 @@ let create ?(error_rate = 0.01) n_items =
   let m, k = estimate_parameters n_items error_rate in
   v (int_of_float m) (int_of_float k)
 
-let add t data =
-  let h = Hashtbl.hash data in
+let add_priv t hashed_data =
   let rec loop = function
     | [] -> ()
     | (off, len) :: tl ->
-        let loc = off + (h mod len) in
+        let loc = off + (hashed_data mod len) in
         let () = Bitv.unsafe_set t.b loc true in
         loop tl
   in
   loop t.p_len
 
-let mem t data =
-  let h = Hashtbl.hash data in
+let add bf data = add_priv bf (Hashtbl.hash data)
+
+let mem_priv t hashed_data =
   let rec loop = function
     | [] -> true
     | (off, len) :: tl ->
-        let loc = off + (h mod len) in
+        let loc = off + (hashed_data mod len) in
         let res = Bitv.unsafe_get t.b loc in
         if res then loop tl else false
   in
   loop t.p_len
+
+let mem bf data = mem_priv bf (Hashtbl.hash data)
 
 let clear t = Bitv.fill t.b 0 t.m false
 
@@ -69,3 +73,23 @@ let size_estimate t =
   let kf = float_of_int t.k in
   let xf = float_of_int (Bitv.pop t.b) in
   int_of_float (-.mf /. kf *. log (1. -. (xf /. mf)))
+
+module type Hashable = sig
+  type t
+
+  val hash : t -> int
+end
+
+module Make (H : Hashable) = struct
+  type t = priv
+
+  let create = create
+
+  let add bf data = add_priv bf (H.hash data)
+
+  let mem bf data = mem_priv bf (H.hash data)
+
+  let clear = clear
+
+  let size_estimate = size_estimate
+end

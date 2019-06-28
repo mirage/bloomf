@@ -30,3 +30,23 @@ val size_estimate : 'a t -> int
 (** [size_estimate t] is an approximation of the number of elements stored in
     the bloom filter.
     Please note that this operation is costly (see benchmarks). *)
+
+module type Hashable = sig
+  type t
+
+  val hash : t -> int
+end
+
+module Make (H : Hashable) : sig
+  type t
+
+  val create : ?error_rate:float -> int -> t
+
+  val add : t -> H.t -> unit
+
+  val mem : t -> H.t -> bool
+
+  val clear : t -> unit
+
+  val size_estimate : t -> int
+end
