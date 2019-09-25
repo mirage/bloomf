@@ -15,7 +15,7 @@
 (** The type of the Bloom filter. *)
 type 'a t
 
-val create : ?error_rate:float -> int -> 'a t
+val create : ?error_rate:float -> ?bits:Bitv.t -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
     positive rate when filled with [size] elements is [error_rate].
     @raise Invalid_argument if [error_rate] is not in \]0, 1\[, or [size] is
@@ -34,6 +34,15 @@ val size_estimate : 'a t -> int
 (** [size_estimate t] is an approximation of the number of elements stored in
     the bloom filter.
     Please note that this operation is costly (see benchmarks). *)
+
+val params : 'a t -> int * int
+(** [params t] returns the parameters [(m, k)] of the bloom filter [t].
+
+    @param m  length of the underlying bit vector
+    @param k  number of hash functions *)
+
+val bits : 'a t -> Bitv.t
+(** [bits t] returns a copy of the underlying bit vector of [t] *)
 
 (** {1 Functorial interface} *)
 
@@ -54,7 +63,7 @@ end
 module Make (H : Hashable) : sig
   type t
 
-  val create : ?error_rate:float -> int -> t
+  val create : ?error_rate:float -> ?bits:Bitv.t -> int -> t
 
   val add : t -> H.t -> unit
 
@@ -63,4 +72,8 @@ module Make (H : Hashable) : sig
   val clear : t -> unit
 
   val size_estimate : t -> int
+
+  val params : t -> int * int
+
+  val bits : t -> Bitv.t
 end

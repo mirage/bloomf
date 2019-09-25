@@ -19,7 +19,7 @@ let partition_lengths m k =
   in
   aux 0 [] (m / k)
 
-let v m k =
+let v ?bits m k =
   let m, lengths = partition_lengths m k in
   let p_len =
     let rec aux acc off = function
@@ -28,10 +28,18 @@ let v m k =
     in
     aux [] 0 lengths
   in
-  try
-    let b = Bitv.create m false in
-    { m; k; p_len; b }
-  with Invalid_argument _ -> invalid_arg "Bloomf.create"
+  let b =
+    (match bits with
+     | Some b ->
+        if m = Bitv.length b
+        then Bitv.copy b
+        else invalid_arg "Bloomf.create: length of bit vector [bits] \
+                          is not equal to estimate based on [n_items]"
+     | None ->
+        try
+          Bitv.create m false
+        with Invalid_argument _ -> invalid_arg "Bloomf.create") in
+  { m; k; p_len; b }
 
 let estimate_parameters n p =
   let log2 = log 2. in
@@ -40,10 +48,10 @@ let estimate_parameters n p =
   let k = ceil (log2 *. m /. nf) in
   (m, k)
 
-let create ?(error_rate = 0.01) n_items =
+let create ?(error_rate = 0.01) ?bits n_items =
   let m, k = estimate_parameters n_items error_rate in
   if error_rate <= 0. || error_rate >= 1. then invalid_arg "Bloomf.create";
-  v (int_of_float m) (int_of_float k)
+  v (int_of_float m) (int_of_float k) ?bits
 
 let add_priv t hashed_data =
   let rec loop = function
@@ -78,6 +86,11 @@ let size_estimate t =
   let xf = float_of_int (Bitv.pop t.b) in
   int_of_float (-.mf /. kf *. log (1. -. (xf /. mf)))
 
+let params t = (t.m, t.k)
+
+let bits t =
+  Bitv.copy t.b
+
 module type Hashable = sig
   type t
 
@@ -96,4 +109,8 @@ module Make (H : Hashable) = struct
   let clear = clear
 
   let size_estimate = size_estimate
+
+  let params = params
+
+  let bits = bits
 end

@@ -60,13 +60,31 @@ let test_size () =
         Alcotest.failf "size_estimate: expecting@\n%d, got@\n%d" i len )
     sizes
 
+let test_bits () =
+  let r = random_string 1000 in
+  let a = Bloomf.create 10 in
+  let () = Bloomf.add a r in
+  let ab = Bloomf.bits a in
+  let b = Bloomf.create ~bits:ab 10 in
+  let bb = Bloomf.bits b in
+  let axb = Bitv.bw_xor ab bb in
+  if 0 <> Bitv.pop axb then
+    Alcotest.fail "Bloomf.bits are not the same after import";
+  if not (Bloomf.mem b r) then
+    Alcotest.fail "(Bloomf.mem b r) is not true";
+  try
+    let _ = Bloomf.create ~bits:(Bloomf.bits b) 100 in
+    Alcotest.fail "Bloomf.create succeeded with invalid [bits] length"
+  with Invalid_argument _ -> ()
+
 let test_set =
   [ ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
     ( "False positive rate is as specified (15% error allowed)",
       `Slow,
       test_errors );
-    ("Size estimate is correct", `Slow, test_size)
+    ("Size estimate is correct", `Slow, test_size);
+    ("Creating with bits is correct", `Quick, test_bits)
   ]
 
 (* Run it *)
