@@ -15,7 +15,7 @@
 (** The type of the Bloom filter. *)
 type 'a t
 
-val create : ?error_rate:float -> ?bits:Bitv.t -> int -> 'a t
+val create : ?error_rate:float -> ?seed:int -> ?bits:Bitv.t -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
     positive rate when filled with [size] elements is [error_rate].
     @raise Invalid_argument if [error_rate] is not in \]0, 1\[, or [size] is
@@ -63,7 +63,7 @@ end
 module Make (H : Hashable) : sig
   type t
 
-  val create : ?error_rate:float -> ?bits:Bitv.t -> int -> t
+  val create : ?error_rate:float -> ?seed:int -> ?bits:Bitv.t -> int -> t
 
   val add : t -> H.t -> unit
 

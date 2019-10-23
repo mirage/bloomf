@@ -1,4 +1,4 @@
-type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
+type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t; seed : int }
 
 type 'a t = priv
 
@@ -19,7 +19,7 @@ let partition_lengths m k =
   in
   aux 0 [] (m / k)
 
-let v ?bits m k =
+let v ?bits m k seed =
   let m, lengths = partition_lengths m k in
   let p_len =
     let rec aux acc off = function
@@ -39,7 +39,7 @@ let v ?bits m k =
         try
           Bitv.create m false
         with Invalid_argument _ -> invalid_arg "Bloomf.create") in
-  { m; k; p_len; b }
+  { m; k; p_len; b; seed }
 
 let estimate_parameters n p =
   let log2 = log 2. in
@@ -48,10 +48,10 @@ let estimate_parameters n p =
   let k = ceil (log2 *. m /. nf) in
   (m, k)
 
-let create ?(error_rate = 0.01) ?bits n_items =
+let create ?(error_rate = 0.01) ?(seed = 0) ?bits n_items =
   let m, k = estimate_parameters n_items error_rate in
   if error_rate <= 0. || error_rate >= 1. then invalid_arg "Bloomf.create";
-  v (int_of_float m) (int_of_float k) ?bits
+  v (int_of_float m) (int_of_float k) seed ?bits
 
 let add_priv t hashed_data =
   let rec loop = function
@@ -63,7 +63,7 @@ let add_priv t hashed_data =
   in
   loop t.p_len
 
-let add bf data = add_priv bf (Hashtbl.hash data)
+let add bf data = add_priv bf (Hashtbl.seeded_hash bf.seed data)
 
 let mem_priv t hashed_data =
   let rec loop = function
@@ -75,7 +75,7 @@ let mem_priv t hashed_data =
   in
   loop t.p_len
 
-let mem bf data = mem_priv bf (Hashtbl.hash data)
+let mem bf data = mem_priv bf (Hashtbl.seeded_hash bf.seed data)
 
 let clear t = Bitv.fill t.b 0 t.m false
 
