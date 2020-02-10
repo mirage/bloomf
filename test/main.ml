@@ -57,16 +57,17 @@ let test_size () =
       let bf, _ = create_and_fill i in
       let len = Bloomf.size_estimate bf in
       if abs (len - i) > int_of_float (0.15 *. float_of_int i) then
-        Alcotest.failf "size_estimate: expecting@\n%d, got@\n%d" i len )
+        Alcotest.failf "size_estimate: expecting@\n%d, got@\n%d" i len)
     sizes
 
 let test_set =
-  [ ("Mem returns true when element was added", `Quick, test_mem);
+  [
+    ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
     ( "False positive rate is as specified (15% error allowed)",
       `Slow,
       test_errors );
-    ("Size estimate is correct", `Slow, test_size)
+    ("Size estimate is correct", `Slow, test_size);
   ]
 
 (* Run it *)

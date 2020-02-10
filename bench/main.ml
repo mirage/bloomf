@@ -44,7 +44,8 @@ let size_estimate size =
 
 let test =
   Test.make_grouped ~name:"bloomf"
-    [ Test.make_indexed ~name:"create" ~fmt:"%s %d"
+    [
+      Test.make_indexed ~name:"create" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
         create;
       Test.make_indexed ~name:"add" ~fmt:"%s %d"
@@ -58,7 +59,7 @@ let test =
         mem_present;
       Test.make_indexed ~name:"size_estimate" ~fmt:"%s %d"
         ~args:[ 10_000; 100_000; 1_000_000 ]
-        size_estimate
+        size_estimate;
     ]
 
 let benchmark () =
