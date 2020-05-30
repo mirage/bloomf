@@ -12,8 +12,8 @@
 
 (** {1 Generic interface} *)
 
-(** The type of the Bloom filter. *)
 type 'a t
+(** The type of the Bloom filter. *)
 
 val create : ?error_rate:float -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
@@ -42,8 +42,8 @@ val size_estimate : 'a t -> int
 
 (** The input interface for [Bloomf.Make]. *)
 module type Hashable = sig
-  (** The type of the values to be stored. *)
   type t
+  (** The type of the values to be stored. *)
 
   val hash : t -> int
   (** The hash function. {e This function must return positive integers.}
