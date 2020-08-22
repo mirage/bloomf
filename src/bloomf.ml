@@ -78,6 +78,75 @@ let size_estimate t =
   let xf = float_of_int (Bitv.pop t.b) in
   int_of_float (-.mf /. kf *. log (1. -. (xf /. mf)))
 
+let to_buf t =
+  let gs = String.make 1 (Char.chr 29) in
+  let rs = String.make 1 (Char.chr 30) in
+  let us = String.make 1 (Char.chr 31) in
+  let buf =
+    Buffer.create (5 + (4 * List.length t.p_len) + (2 * Bitv.length t.b))
+  in
+  let p_len_to_string p_len =
+    let buf = Buffer.create (4 * List.length p_len) in
+    p_len
+    |> List.iter (fun p ->
+           let fst, snd = p in
+           string_of_int fst ^ us ^ string_of_int snd ^ rs
+           |> Buffer.add_string buf);
+    buf |> Buffer.contents
+  in
+  let bitv_to_string bitv =
+    let buf = Buffer.create (2 * List.length bitv) in
+    bitv |> List.iter (fun b -> string_of_int b ^ rs |> Buffer.add_string buf);
+    buf |> Buffer.contents
+  in
+  let contents =
+    [
+      bitv_to_string (t.b |> Bitv.to_list);
+      gs;
+      string_of_int t.k;
+      gs;
+      p_len_to_string t.p_len;
+      gs;
+      string_of_int t.m;
+    ]
+  in
+  contents |> List.iter (fun s -> Buffer.add_string buf s);
+  buf
+
+let to_bytes t = to_buf t |> Buffer.to_bytes
+
+let to_string t = to_buf t |> Buffer.contents
+
+let parse_plen p_len_str =
+  let rs = Char.chr 30 in
+  let us = Char.chr 31 in
+  let parse_pair_ary pair =
+    match pair with
+    | [| x; y |] -> (int_of_string x, int_of_string y)
+    | _ -> failwith "Invalid p_len pair"
+  in
+  p_len_str
+  |> String.split_on_char rs
+  |> List.map (fun p ->
+         p |> String.split_on_char us |> Array.of_list |> parse_pair_ary)
+
+let of_string s =
+  let gs = Char.chr 29 in
+  match String.split_on_char gs s with
+  | [ bv_str; k_str; p_len_str; m_str ] ->
+      let rs = Char.chr 30 in
+      let b =
+        bv_str
+        |> String.split_on_char rs
+        |> List.map int_of_string
+        |> Bitv.of_list
+      in
+      let p_len = parse_plen p_len_str in
+      { m = int_of_string m_str; k = int_of_string k_str; p_len; b }
+  | _ -> failwith "Invalid input"
+
+let of_bytes b = of_string (Bytes.to_string b)
+
 module type Hashable = sig
   type t
 

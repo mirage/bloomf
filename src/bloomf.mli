@@ -36,6 +36,14 @@ val size_estimate : 'a t -> int
     the bloom filter. Please note that this operation is costly (see
     benchmarks). *)
 
+val to_string : 'a t -> string
+
+val to_bytes : 'a t -> bytes
+
+val of_string : string -> 'a t
+
+val of_bytes : bytes -> 'a t
+
 (** {1 Functorial interface} *)
 
 (** The functorial interface allows you to specify your own hash function. *)
