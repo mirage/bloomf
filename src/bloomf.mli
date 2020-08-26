@@ -37,12 +37,24 @@ val size_estimate : 'a t -> int
     benchmarks). *)
 
 val to_string : 'a t -> string
+(** [to_string t] converts a [t] to a [string] suitable for serialization to
+    file, disk, or similar.The string returned by this function should be
+    treated as an opaque datastructure. *)
 
 val to_bytes : 'a t -> bytes
+(** [to_bytes t] converts a [t] to [bytes]. The same concerns about
+    serialization apply here as to [to_string] *)
 
 val of_string : string -> ('a t, string) result
+(** [of_string t] converts a [string] of the format serialized by [to_string] to
+    [t]. It falls to the caller to handle the finer points of de-serialization
+    such as ensuring that the data structures remain consistent, that the hash
+    function (if provided) is the same (including possible random seed) etc *)
 
 val of_bytes : bytes -> ('a t, string) result
+(** [of_bytes t] converts a [bytes] of the format serialized by [to_bytes] to
+    [t]. All of the same concerns regarding deserialization and program state
+    apply to this function as they do to [to_string] *)
 
 (** {1 Functorial interface} *)
 
