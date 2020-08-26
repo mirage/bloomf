@@ -108,7 +108,7 @@ let to_buf t =
       string_of_int t.m;
     ]
   in
-  contents |> List.iter (fun s -> Buffer.add_string buf s);
+  contents |> List.iter (Buffer.add_string buf);
   buf
 
 let to_bytes t = to_buf t |> Buffer.to_bytes
