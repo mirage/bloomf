@@ -132,9 +132,9 @@ let int_of_string_opt inpt =
 let parse_p_len p_len_str =
   let rs = Char.chr 30 in
   let us = Char.chr 31 in
-  let parse_pair_ary pair =
+  let parse_pair pair =
     match pair with
-    | [| x; y |] -> (
+    | [ x; y ] -> (
         let x_opt = int_of_string_opt x in
         let y_opt = int_of_string_opt y in
         match (x_opt, y_opt) with
@@ -149,8 +149,7 @@ let parse_p_len p_len_str =
   | [ " " ] -> Ok []
   | p_len_lst ->
       p_len_lst
-      |> List.map (fun p ->
-             p |> String.split_on_char us |> Array.of_list |> parse_pair_ary)
+      |> List.map (fun p -> p |> String.split_on_char us |> parse_pair)
       |> unwrap_input_list "Invalid p_len pair(s)"
 
 let of_string s =
