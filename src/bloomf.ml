@@ -87,21 +87,19 @@ let to_buf t =
   in
   let p_len_to_string p_len =
     let buf = Buffer.create (4 * List.length p_len) in
-    p_len
-    |> List.iter (fun p ->
-           let fst, snd = p in
-           string_of_int fst ^ us ^ string_of_int snd ^ rs
-           |> Buffer.add_string buf);
-    buf |> Buffer.contents
-  in
-  let bitv_to_string bitv =
-    let buf = Buffer.create (2 * List.length bitv) in
-    bitv |> List.iter (fun b -> string_of_int b ^ rs |> Buffer.add_string buf);
+    ( match p_len with
+    | [] -> Buffer.add_string buf (" " ^ rs)
+    | p_len ->
+        p_len
+        |> List.iter (fun p ->
+               let fst, snd = p in
+               Buffer.add_string buf
+                 (string_of_int fst ^ us ^ string_of_int snd ^ rs)) );
     buf |> Buffer.contents
   in
   let contents =
     [
-      bitv_to_string (t.b |> Bitv.to_list);
+      Bitv.L.to_string t.b;
       gs;
       string_of_int t.k;
       gs;
@@ -117,33 +115,60 @@ let to_bytes t = to_buf t |> Buffer.to_bytes
 
 let to_string t = to_buf t |> Buffer.contents
 
-let parse_plen p_len_str =
+let unwrap_input_list error_message l =
+  let rec aux l acc =
+    match l with
+    | [] -> ( Ok (List.rev acc) [@explicit_arity] )
+    | ((Some x)[@explicit_arity]) :: tl -> aux tl (x :: acc)
+    | None :: _ -> ( Error error_message [@explicit_arity] )
+  in
+  aux l []
+
+let int_of_string_opt inpt =
+  match int_of_string inpt with
+  | inpt_int -> Some inpt_int
+  | exception Failure _ -> None
+
+let parse_p_len p_len_str =
   let rs = Char.chr 30 in
   let us = Char.chr 31 in
   let parse_pair_ary pair =
     match pair with
-    | [| x; y |] -> (int_of_string x, int_of_string y)
-    | _ -> failwith "Invalid p_len pair"
+    | [| x; y |] -> (
+        let x_opt = int_of_string_opt x in
+        let y_opt = int_of_string_opt y in
+        match (x_opt, y_opt) with
+        | Some x_opt, Some y_opt -> Some (x_opt, y_opt)
+        | _ -> None )
+    | _ -> None
   in
-  p_len_str
-  |> String.split_on_char rs
-  |> List.map (fun p ->
-         p |> String.split_on_char us |> Array.of_list |> parse_pair_ary)
+  let p_len_lst =
+    p_len_str |> String.split_on_char rs |> List.filter (fun p -> p <> "")
+  in
+  match p_len_lst with
+  | [ " " ] -> Ok []
+  | p_len_lst ->
+      p_len_lst
+      |> List.map (fun p ->
+             p |> String.split_on_char us |> Array.of_list |> parse_pair_ary)
+      |> unwrap_input_list "Invalid p_len pair(s)"
 
 let of_string s =
   let gs = Char.chr 29 in
   match String.split_on_char gs s with
-  | [ bv_str; k_str; p_len_str; m_str ] ->
-      let rs = Char.chr 30 in
-      let b =
-        bv_str
-        |> String.split_on_char rs
-        |> List.map int_of_string
-        |> Bitv.of_list
-      in
-      let p_len = parse_plen p_len_str in
-      { m = int_of_string m_str; k = int_of_string k_str; p_len; b }
-  | _ -> failwith "Invalid input"
+  | [ bv_str; k_str; p_len_str; m_str ] -> (
+      let b = Bitv.L.of_string bv_str in
+      match parse_p_len p_len_str with
+      | Ok p_len -> (
+          let m = int_of_string_opt m_str in
+          let k = int_of_string_opt k_str in
+          match (m, k) with
+          | Some m, Some k -> Ok { m; k; p_len; b }
+          | None, Some _ -> Error "Invalid int for 'm'"
+          | Some _, None -> Error "Invalid int for 'k'"
+          | None, None -> Error "Invalid int for both 'm' and 'k'" )
+      | Error msg -> Error msg )
+  | _ -> Error "invalid number of fields in input"
 
 let of_bytes b = of_string (Bytes.to_string b)
 

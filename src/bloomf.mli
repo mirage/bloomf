@@ -40,9 +40,9 @@ val to_string : 'a t -> string
 
 val to_bytes : 'a t -> bytes
 
-val of_string : string -> 'a t
+val of_string : string -> ('a t, string) result
 
-val of_bytes : bytes -> 'a t
+val of_bytes : bytes -> ('a t, string) result
 
 (** {1 Functorial interface} *)
 
