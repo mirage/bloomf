@@ -16,7 +16,7 @@ build: [
 depends: [
   "ocaml"   {>= "4.04.0"}
   "dune"    {>= "1.7.0"}
-  "bitv"
+  "bitv"    {>= "1.4"}
   "alcotest" {with-test}
 ]
 synopsis: "Efficient Bloom filters for OCaml"
