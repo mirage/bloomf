@@ -60,19 +60,16 @@ let test_size () =
         Alcotest.failf "size_estimate: expecting@\n%d, got@\n%d" i len)
     sizes
 
-let test_string_roundtrip () =
-  let bf = Bloomf.create ~error_rate:expected_error_rate 1 in
-  let () = Bloomf.add bf "test_string" in
-  let bf2 = Bloomf.of_string (Bloomf.to_string bf) in
-  match bf2 with
-  | Ok b -> if bf <> b then Alcotest.fail "Decoded objects unequal" else ()
+let test_bytes_roundtrip () =
+  match Bloomf.of_bytes (Bloomf.to_bytes bf) with
+  | Ok b -> if bf = b then () else Alcotest.fail "Decoded objects unequal"
   | Error msg -> Alcotest.failf "of_string failed to decode object: %s\n" msg
 
 let test_set =
   [
     ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
-    ("String roundtrip equality", `Quick, test_string_roundtrip);
+    ("Bytes roundtrip equality", `Quick, test_bytes_roundtrip);
     ( "False positive rate is as specified (15% error allowed)",
       `Slow,
       test_errors );
