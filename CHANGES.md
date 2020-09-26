@@ -1,6 +1,6 @@
-## Unreleased 2020-08-26
+## Unreleased
 
-- Add serializers and deserializers: `to_string`, `to_bytes`, `of_string`, and `of_bytes`
+- Add serializers and deserializers: `to_bytes` and `of_bytes`
 
 ## v0.1.0 2019-03-07
 
