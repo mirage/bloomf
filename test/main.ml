@@ -65,11 +65,19 @@ let test_bytes_roundtrip () =
   | Ok b -> if bf = b then () else Alcotest.fail "Decoded objects unequal"
   | Error msg -> Alcotest.failf "of_string failed to decode object: %s\n" msg
 
+let test_invalid_bytes () =
+  match Bloomf.of_bytes (Bytes.init 17 (fun i -> Char.chr i)) with
+  | Ok _ -> Alcotest.fail "Ok result for of_bytes on invalid input"
+  | Error _ -> ()
+
 let test_set =
   [
     ("Mem returns true when element was added", `Quick, test_mem);
     ("Mem returns false when filter is empty", `Quick, test_mem_create);
-    ("Bytes roundtrip equality", `Quick, test_bytes_roundtrip);
+    ( "Roundtrip to/of bytes returns same structure",
+      `Quick,
+      test_bytes_roundtrip );
+    ("of_bytes returns Error on invalid input", `Quick, test_invalid_bytes);
     ( "False positive rate is as specified (15% error allowed)",
       `Slow,
       test_errors );
