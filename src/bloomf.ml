@@ -80,47 +80,70 @@ let size_estimate t =
 
 let to_bytes t =
   let flat_p_len =
-    t.p_len |> List.fold_left (fun acc (a, b) -> a :: b :: acc) []
+    t.p_len
+    |> List.fold_left
+         (fun acc (a, b) -> Int64.of_int a :: Int64.of_int b :: acc)
+         []
   in
-  let first_to_encode = Array.of_list (t.m :: t.k :: flat_p_len) in
+  let first_to_encode =
+    Array.of_list (Int64.of_int t.m :: Int64.of_int t.k :: flat_p_len)
+  in
+
   Bytes.concat Bytes.empty
     [
       Bytes.init
         (8 * Array.length first_to_encode)
-        (fun i -> Char.chr ((first_to_encode.(i / 8) lsr (8 * i)) land 0xFF));
+        (fun i ->
+          Char.chr
+            (Int64.to_int
+               (Int64.logand
+                  (Int64.shift_right first_to_encode.(i / 8) (8 * i))
+                  255L)));
       Bitv.to_bytes t.b;
     ]
 
 let of_bytes b =
-  let int_of_bytes b =
+  let int64_of_bytes b =
     let rec build x i =
       if i < 0 then x
-      else build ((x lsl 8) lor Char.code (Bytes.get b i)) (pred i)
+      else
+        build
+          (Int64.logor (Int64.shift_left x 8)
+             (Int64.of_int (Char.code (Bytes.get b i))))
+          (pred i)
     in
-    build 0 7
+    build 0L 7
   in
+
   let rec parse_p_len start stop acc last =
-    if start >= stop then (start, acc)
-    else
-      let next_value = int_of_bytes (Bytes.sub b start 8) in
-      match last with
-      | Some value ->
-          parse_p_len (start + 8) stop ((value, next_value) :: acc) None
-      | None -> parse_p_len (start + 8) stop acc (Some next_value)
+    match Int64.compare start stop with
+    | i when i >= 0 -> (Int64.to_int start, acc)
+    | _ -> (
+        let next_value = int64_of_bytes (Bytes.sub b (Int64.to_int start) 8) in
+        match last with
+        | Some value ->
+            parse_p_len (Int64.add start 8L) stop
+              ((value, Int64.to_int next_value) :: acc)
+              None
+        | None ->
+            parse_p_len (Int64.add start 8L) stop acc
+              (Some (Int64.to_int next_value)) )
   in
-  match int_of_bytes (Bytes.sub b 0 8) with
+
+  match int64_of_bytes (Bytes.sub b 0 8) with
   | exception Invalid_argument _ -> Error "Failed to parse (m)"
   | m -> (
-      match int_of_bytes (Bytes.sub b 8 8) with
+      match int64_of_bytes (Bytes.sub b 8 8) with
       | exception Invalid_argument _ -> Error "Failed to parse (k)"
       | k -> (
           (* 16 initial offset + 2 ints per entry in p_len (which has `k` elements) *)
-          match parse_p_len 16 (16 + (k * 16)) [] None with
+          match parse_p_len 16L (Int64.add 16L (Int64.mul k 16L)) [] None with
           | exception Invalid_argument _ -> Error "Failed to parse (p_len)"
           | i, p_len -> (
               match Bitv.of_bytes (Bytes.sub b i (Bytes.length b - i)) with
               | exception Invalid_argument _ -> Error "Failed to parse (b)"
-              | b -> Ok { m; k; p_len; b } ) ) )
+              | b -> Ok { m = Int64.to_int m; k = Int64.to_int k; p_len; b } ) )
+      )
 
 module type Hashable = sig
   type t
