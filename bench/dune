@@ -1,9 +1,9 @@
 (executable
  (name main)
- (libraries bechamel bechamel.notty notty.unix bloomf))
+ (libraries bechamel bechamel-notty notty.unix bloomf))
 
-(alias
- (name bench)
- (deps main.exe)
+(rule
+ (alias bench)
+ (package bloomf-bench)
  (action
   (run %{exe:main.exe})))

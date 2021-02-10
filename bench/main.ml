@@ -63,6 +63,7 @@ let test =
     ]
 
 let benchmark () =
+  let config = Benchmark.(cfg ~limit:100 ~quota:(Time.millisecond 100.)) () in
   let ols =
     Analyze.ols ~bootstrap:0 ~r_square:true ~predictors:Measure.[| run |]
   in
@@ -70,7 +71,7 @@ let benchmark () =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
   let raw_results =
-    Benchmark.all ~run:1000 ~quota:Benchmark.(s 0.1) instances test
+    Benchmark.all config instances test
   in
   List.map (fun instance -> Analyze.all ols instance raw_results) instances
   |> Analyze.merge ols instances
@@ -85,14 +86,14 @@ let img (window, results) =
   Bechamel_notty.Multiple.image_of_ols_results ~rect:window
     ~predictor:Measure.run results
 
-type rect = Bechamel_notty.rect = { w : int; h : int }
+open Notty_unix
 
-let rect w h = { w; h }
+let rect w h = Bechamel_notty.{ w; h }
 
 let () =
   let window =
-    match Notty_unix.winsize Unix.stdout with
-    | Some (_, _) -> { w = 80; h = 1 }
+    match winsize Unix.stdout with
+    | Some (_, _) -> Bechamel_notty.{ w = 80; h = 1 }
     | None -> { w = 80; h = 1 }
   in
-  img (window, benchmark ()) |> Notty_unix.eol |> Notty_unix.output_image
+  img (window, benchmark ()) |> eol |> output_image
