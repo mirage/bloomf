@@ -87,6 +87,55 @@ let size_estimate t =
   let xf = float_of_int (Bitv.pop t.b) in
   int_of_float (-.mf /. kf *. log (1. -. (xf /. mf)))
 
+(* Serialisers *)
+
+external set_64 : bytes -> int -> int64 -> unit = "%caml_string_set64u"
+
+external swap64 : int64 -> int64 = "%bswap_int64"
+
+let set_uint64 buf off v =
+  if not Sys.big_endian then set_64 buf off (swap64 v) else set_64 buf off v
+
+(* type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t } *)
+
+let to_bytes t =
+  let enc_b = Bitv.to_bytes t.b in
+  let enc_b_len = Bytes.length enc_b in
+  let enc_p_len_len = 16 * List.length t.p_len in
+  let len = 8 + 8 + 8 + enc_p_len_len + enc_b_len in
+  let buf = Bytes.create len in
+  set_uint64 buf 0 (Int64.of_int t.m);
+  set_uint64 buf 8 (Int64.of_int t.k);
+  set_uint64 buf 16 (Int64.of_int (List.length t.p_len));
+  List.iteri
+    (fun i (i1, i2) ->
+      set_uint64 buf (24 + (8 * (2 * i))) (Int64.of_int i1);
+      set_uint64 buf (24 + (8 * ((2 * i) + 1))) (Int64.of_int i2))
+    t.p_len;
+  Bytes.blit enc_b 0 buf (24 + enc_p_len_len) enc_b_len;
+  buf
+
+external get_64 : bytes -> int -> int64 = "%caml_string_get64"
+
+let get_uint64 buf off =
+  if not Sys.big_endian then swap64 (get_64 buf off) else get_64 buf off
+
+let of_bytes buf =
+  try
+    let m = get_uint64 buf 0 |> Int64.to_int in
+    let k = get_uint64 buf 8 |> Int64.to_int in
+    let p_len_len = get_uint64 buf 16 |> Int64.to_int in
+    let p_len =
+      List.init p_len_len (fun i ->
+          let i1 = get_uint64 buf (24 + (8 * (2 * i))) |> Int64.to_int in
+          let i2 = get_uint64 buf (24 + (8 * ((2 * i) + 1))) |> Int64.to_int in
+          (i1, i2))
+    in
+    let read = 24 + (16 * p_len_len) in
+    let b = Bytes.sub buf read (Bytes.length buf - read) |> Bitv.of_bytes in
+    Ok { m; k; p_len; b }
+  with _ -> Error (`Msg "invalid serialisation format")
+
 module type Hashable = sig
   type t
 
@@ -105,4 +154,8 @@ module Make (H : Hashable) = struct
   let clear = clear
 
   let size_estimate = size_estimate
+
+  let to_bytes = to_bytes
+
+  let of_bytes = of_bytes
 end

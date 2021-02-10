@@ -78,6 +78,18 @@ let test_union () = test_op "union" Bloomf.union StringSet.union
 
 let test_inter () = test_op "intersection" Bloomf.inter StringSet.inter
 
+let test_bytes () =
+  let sizes = [ 1_000; 10_000; 100_000 ] in
+  List.iter
+    (fun i ->
+      let bf1, _ = create_and_fill i in
+      match Bloomf.to_bytes bf1 |> Bloomf.of_bytes with
+      | Ok bf2 ->
+          Alcotest.(check bool)
+            "serialisation / deserialisation" true (bf1 = bf2)
+      | Error _ -> Alcotest.failf "deserialisation failed")
+    sizes
+
 let suite =
   [
     ("Mem returns true when element was added", `Quick, test_mem);
@@ -87,6 +99,7 @@ let suite =
     ("Size estimate is correct", `Slow, test_size);
     ("Union", `Quick, test_union);
     ("Intersection", `Quick, test_inter);
+    ("Serialisation", `Quick, test_bytes);
   ]
 
 let () = Alcotest.run "Bloomf" [ ("bloomf", suite) ]

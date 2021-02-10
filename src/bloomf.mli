@@ -54,6 +54,12 @@ val size_estimate : 'a t -> int
     the bloom filter. Please note that this operation is costly (see
     benchmarks). *)
 
+(** {2 Serializers/Deserializers} *)
+
+val to_bytes : 'a t -> bytes
+
+val of_bytes : bytes -> ('a t, [ `Msg of string ]) result
+
 (** {1 Functorial interface} *)
 
 (** The functorial interface allows you to specify your own hash function. *)
@@ -82,4 +88,8 @@ module Make (H : Hashable) : sig
   val clear : t -> unit
 
   val size_estimate : t -> int
+
+  val to_bytes : t -> bytes
+
+  val of_bytes : bytes -> (t, [ `Msg of string ]) result
 end
