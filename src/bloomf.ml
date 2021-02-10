@@ -58,13 +58,13 @@ let add_priv t hashed_data =
 let add bf data = add_priv bf (Hashtbl.hash data)
 
 let op f bf1 bf2 =
-  if bf1.k = bf2.k && bf1.m = bf2.m then
-    Some { m = bf1.m; k = bf2.k; p_len = bf1.p_len; b = f bf1.b bf2.b }
-  else None
+  if bf1.k <> bf2.k || bf1.m <> bf2.m then
+    invalid_arg "incompatible bloom filters";
+  { m = bf1.m; k = bf2.k; p_len = bf1.p_len; b = f bf1.b bf2.b }
 
 let union bf1 bf2 = op Bitv.bw_or bf1 bf2
 
-let intersection bf1 bf2 = op Bitv.bw_and bf1 bf2
+let inter bf1 bf2 = op Bitv.bw_and bf1 bf2
 
 let mem_priv t hashed_data =
   let rec loop = function

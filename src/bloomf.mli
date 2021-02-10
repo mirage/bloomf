@@ -31,23 +31,23 @@ val mem : 'a t -> 'a -> bool
 val clear : 'a t -> unit
 (** [clear t] clears the contents of [t]. *)
 
-val union : 'a t -> 'a t -> 'a t option
+val union : 'a t -> 'a t -> 'a t
 (** [union t1 t2] computes the union of the two inputs. This operation is
     lossless in the sense that the resulting Bloom filter is the same as the
     Bloom filter created from scratch using the union of the two sets.
 
-    The output is [Some] if the two inputs were created using the same error
-    rate and size. *)
+    Raises [Invalid_argument] if the two bloom filters were created with
+    different parameters *)
 
-val intersection : 'a t -> 'a t -> 'a t option
-(** [intersection t1 t2] computes the intersection of the two inputs. The false
+val inter : 'a t -> 'a t -> 'a t
+(** [inter t1 t2] computes the intersection of the two inputs. The false
     positive probability in the resulting Bloom filter is at most the
     false-positive probability in one of the constituent Bloom filters, but may
     be larger than the false positive probability in the Bloom filter created
     from scratch using the intersection of the two sets.
 
-    The output is [Some] if the two inputs were created using the same error
-    rate and size. *)
+    Raises [Invalid_argument] if the two bloom filters were created with
+    different parameters *)
 
 val size_estimate : 'a t -> int
 (** [size_estimate t] is an approximation of the number of elements stored in
