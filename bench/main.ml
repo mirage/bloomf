@@ -70,9 +70,7 @@ let benchmark () =
   let instances =
     Instance.[ minor_allocated; major_allocated; monotonic_clock ]
   in
-  let raw_results =
-    Benchmark.all config instances test
-  in
+  let raw_results = Benchmark.all config instances test in
   List.map (fun instance -> Analyze.all ols instance raw_results) instances
   |> Analyze.merge ols instances
 

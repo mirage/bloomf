@@ -59,7 +59,7 @@ let add bf data = add_priv bf (Hashtbl.hash data)
 
 let op f bf1 bf2 =
   if bf1.k = bf2.k && bf1.m = bf2.m then
-    Some { m=bf1.m; k= bf2.k; p_len=bf1.p_len; b=f bf1.b bf2.b }
+    Some { m = bf1.m; k = bf2.k; p_len = bf1.p_len; b = f bf1.b bf2.b }
   else None
 
 let union bf1 bf2 = op Bitv.bw_or bf1 bf2
