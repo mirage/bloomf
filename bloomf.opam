@@ -1,6 +1,6 @@
 opam-version: "2.0"
-maintainer:   "Clement Pascutto"
-authors:      ["Clement Pascutto"]
+maintainer:   "Clément Pascutto"
+authors:      ["Clément Pascutto"]
 license:      "MIT"
 homepage:     "https://github.com/mirage/bloomf"
 bug-reports:  "https://github.com/mirage/bloomf/issues"
@@ -8,9 +8,18 @@ dev-repo:     "git+https://github.com/mirage/bloomf.git"
 doc:          "https://mirage.github.io/bloomf/"
 
 build: [
- ["dune" "subst"] {pinned}
- ["dune" "build" "-p" name "-j" jobs]
- ["dune" "runtest" "-p" name] {with-test}
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+  name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+  "@doc" {with-doc}
+  ]
 ]
 
 depends: [
