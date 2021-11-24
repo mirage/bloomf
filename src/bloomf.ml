@@ -1,6 +1,7 @@
 type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
 type 'a t = priv
 
+let copy t = { m = t.m; k = t.k; p_len = t.p_len; b = Bitv.copy t.b }
 let rec gcd a b = if b = 0 then a else gcd b (a mod b)
 
 let partition_lengths m k =
@@ -142,6 +143,7 @@ module Make (H : Hashable) = struct
   type t = priv
 
   let create = create
+  let copy = copy
   let add bf data = add_priv bf (H.hash data)
   let mem bf data = mem_priv bf (H.hash data)
   let clear = clear
