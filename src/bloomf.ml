@@ -1,5 +1,4 @@
 type priv = { m : int; k : int; p_len : (int * int) list; b : Bitv.t }
-
 type 'a t = priv
 
 let rec gcd a b = if b = 0 then a else gcd b (a mod b)
@@ -63,7 +62,6 @@ let op f bf1 bf2 =
   { m = bf1.m; k = bf2.k; p_len = bf1.p_len; b = f bf1.b bf2.b }
 
 let union bf1 bf2 = op Bitv.bw_or bf1 bf2
-
 let inter bf1 bf2 = op Bitv.bw_and bf1 bf2
 
 let mem_priv t hashed_data =
@@ -77,7 +75,6 @@ let mem_priv t hashed_data =
   loop t.p_len
 
 let mem bf data = mem_priv bf (Hashtbl.hash data)
-
 let clear t = Bitv.fill t.b 0 t.m false
 
 (* Bitv.pop is really slow *)
@@ -90,7 +87,6 @@ let size_estimate t =
 (* Serialisers *)
 
 external set_64 : bytes -> int -> int64 -> unit = "%caml_string_set64u"
-
 external swap64 : int64 -> int64 = "%bswap_int64"
 
 let set_uint64 buf off v =
@@ -146,16 +142,10 @@ module Make (H : Hashable) = struct
   type t = priv
 
   let create = create
-
   let add bf data = add_priv bf (H.hash data)
-
   let mem bf data = mem_priv bf (H.hash data)
-
   let clear = clear
-
   let size_estimate = size_estimate
-
   let to_bytes = to_bytes
-
   let of_bytes = of_bytes
 end

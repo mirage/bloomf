@@ -1,6 +1,6 @@
 opam-version: "2.0"
-maintainer:   "Clément Pascutto"
-authors:      ["Clément Pascutto"]
+maintainer:   "Clément Pascutto <clement@pascutto.fr>"
+authors:      "Clément Pascutto <clement@pascutto.fr>"
 license:      "MIT"
 homepage:     "https://github.com/mirage/bloomf"
 bug-reports:  "https://github.com/mirage/bloomf/issues"
@@ -13,12 +13,12 @@ build: [
     "dune"
     "build"
     "-p"
-  name
+    name
     "-j"
     jobs
     "@install"
     "@runtest" {with-test}
-  "@doc" {with-doc}
+    "@doc" {with-doc}
   ]
 ]
 
@@ -26,7 +26,7 @@ depends: [
   "ocaml"   {>= "4.03.0"}
   "dune"    {>= "1.7.0"}
   "bitv"    {>= "1.4"}
-  "alcotest" {with-test}
+  "alcotest" {>= "1.0.0" & with-test}
 ]
 synopsis: "Efficient Bloom filters for OCaml"
 description: "Efficient Bloom filters for OCaml"
