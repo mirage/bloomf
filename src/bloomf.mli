@@ -22,6 +22,10 @@ val create : ?error_rate:float -> int -> 'a t
     @raise Invalid_argument
       if [error_rate] is not in \]0, 1\[, or [size] is negative. *)
 
+val copy : 'a t -> 'a t
+(** [copy t] copies the BF. The fresh returned BF is completely separated from
+    the given one. *)
+
 val add : 'a t -> 'a -> unit
 (** [add t e] adds [e] to [t]. *)
 
@@ -79,6 +83,7 @@ module Make (H : Hashable) : sig
   type t
 
   val create : ?error_rate:float -> int -> t
+  val copy : t -> t
   val add : t -> H.t -> unit
   val mem : t -> H.t -> bool
   val clear : t -> unit

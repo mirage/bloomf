@@ -1,3 +1,7 @@
+# unreleased
+
+- Added `copy`
+
 # v0.2.0 2021-02-10
 
 - Added `to_bytes` and `of_bytes`.
