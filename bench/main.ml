@@ -2,11 +2,8 @@ open Bechamel
 open Toolkit
 
 let () = Random.self_init ()
-
 let random_char () = char_of_int (Random.int 256)
-
 let random_string n = String.init n (fun _i -> random_char ())
-
 let create size = Staged.stage (fun () -> Bloomf.create size)
 
 let add size =
@@ -75,9 +72,7 @@ let benchmark () =
   |> Analyze.merge ols instances
 
 let () = Bechamel_notty.Unit.add Instance.monotonic_clock "ns"
-
 let () = Bechamel_notty.Unit.add Instance.minor_allocated "w"
-
 let () = Bechamel_notty.Unit.add Instance.major_allocated "mw"
 
 let img (window, results) =

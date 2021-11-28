@@ -1,7 +1,5 @@
 let () = Random.self_init ()
-
 let random_char () = char_of_int (Random.int 256)
-
 let random_string n = String.init n (fun _i -> random_char ())
 
 module StringSet = Set.Make (String)
@@ -75,7 +73,6 @@ let test_op msg bop sop =
     sizes
 
 let test_union () = test_op "union" Bloomf.union StringSet.union
-
 let test_inter () = test_op "intersection" Bloomf.inter StringSet.inter
 
 let test_bytes () =

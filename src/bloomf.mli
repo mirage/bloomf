@@ -19,8 +19,8 @@ val create : ?error_rate:float -> int -> 'a t
 (** [create ~error_rate size] creates a fresh BF for which expected false
     positive rate when filled with [size] elements is [error_rate].
 
-    @raise Invalid_argument if [error_rate] is not in \]0, 1\[, or [size] is
-    negative. *)
+    @raise Invalid_argument
+      if [error_rate] is not in \]0, 1\[, or [size] is negative. *)
 
 val add : 'a t -> 'a -> unit
 (** [add t e] adds [e] to [t]. *)
@@ -57,7 +57,6 @@ val size_estimate : 'a t -> int
 (** {2 Serializers/Deserializers} *)
 
 val to_bytes : 'a t -> bytes
-
 val of_bytes : bytes -> ('a t, [ `Msg of string ]) result
 
 (** {1 Functorial interface} *)
@@ -80,16 +79,10 @@ module Make (H : Hashable) : sig
   type t
 
   val create : ?error_rate:float -> int -> t
-
   val add : t -> H.t -> unit
-
   val mem : t -> H.t -> bool
-
   val clear : t -> unit
-
   val size_estimate : t -> int
-
   val to_bytes : t -> bytes
-
   val of_bytes : bytes -> (t, [ `Msg of string ]) result
 end
